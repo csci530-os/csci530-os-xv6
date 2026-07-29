@@ -7,7 +7,10 @@ PANDOC_BEAMER_ARGS="--to=beamer --standalone --dpi=300"
 PANDOC_LATEX_ARGS="-s -N"
 
 rule all:
-	input:  ["ch01-os-interfaces.pdf"]
+	input:  ["ch01-os-interfaces.pdf", \
+	         "kr05-pointers-arrays.pdf", \
+	         "kr06-structures.pdf", \
+	        ]
 
 rule pmd_to_md:
 	input:  "{file}.pmd"

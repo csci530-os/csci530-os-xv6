@@ -1,0 +1,377 @@
+---
+title: "Ch 05: Pointers andd Arrays"
+subtitle: "The C Programming Language ($2^{ed}$)"
+author: Derek Harter
+date:  Summer 2026
+theme: Madrid
+colorlinks: true
+linkcolor: gray
+filecolor: gray
+urlcolor: blue
+citecolor: blue
+
+section-titles: false
+toc: false
+toc_depth: 2
+output: 
+	beamer_presentation:
+    keep_tex: true
+classoption: aspectratio=169
+header-includes:
+  - \logo{\includegraphics[scale=0.25]{figures/etamu-logo}}
+  - \title [Python Assignments]{Python Assignments}
+  - \institute[East Texas A\&M]{Department of Computer Science \\East Texas A\&M University}
+  - \usepackage[backend=biber, style=apa]{biblatex}
+  - \addbibresource{slides.bib}
+  - \hypersetup{colorlinks=true, urlcolor=blue, citecolor=blue, linkcolor=green, filecolor=green}
+  - \usepackage[percent]{overpic}
+---
+
+
+# Pointers and Addresses
+
+\begin{figure}
+\includegraphics[scale=0.25]{figures/kr05-fig-1-pointer}
+\label{fig:kr05-fig-1-pointer}
+\caption{A pointer holds an address that points to another variable \parencite[pg.83]{kernighan-ritchie-1988}}
+\end{figure}
+
+::: columns
+:::: {.column width=30%}
+```c
+int c;
+int *p;
+p = &c;
+```
+::: {.block}
+## Pointer Variable in C
+
+A pointer is a variable that contains the 
+**address** of another variable.
+:::
+::::
+:::: {.column width=66%}
+- The unary operator `&` gives the **address** of an object
+- The unary operator `*` is the **indirection** or **dereferencing** operator
+  - it *follows* the pointer and dereferences what it points to
+- Pointer variables have a type
+  - When you dereference a pointer, the bits are treated as the declared type
+::::
+:::
+
+# Pointers, Types and Operators
+
+::: columns
+:::: {.column width=33%}
+- A pointer is constrained to point to a particular kind of object
+  - every pointer points to a specific data type (or block thereof)
+  - Exception: (void *) generic pointer but can't be dereferenced
+::::
+:::: {.column width=66%}
+- If `ip` points to the integer `x`, than `*ip` can be used anywhere `x`
+  can. 
+  - The unary operators `*` and `&` bind more tightly than arithmetic operators
+
+```c
+int x, y, *ip;
+ip = &x;
+
+y = *ip + 1;
+*ip = *ip + 10;
+*ip += 1;
+
+++*ip; // works as expected, preincrement x
+(*ip)++; // careful, unary operators
+         // associate right to left?! more later
+```
+::::
+:::
+
+# Pointers and Function Arguments
+
+::: columns
+:::: {.column width=50%}
+- C passes argument to functions by value (a copy is made)
+  - Our version of C does not support newer "reference" parameters
+- Can use pointers to effectively pass by reference
+
+```c
+void
+swap(int *px, int *py)
+{
+  int temp;
+
+  temp = *px;
+  *px = *py;
+  *py = temp;
+}
+```
+::::
+:::: {.column width=50%}
+\begin{figure}
+\includegraphics[scale=0.15]{figures/kr05-fig-2-pass-by-reference}
+\label{fig:kr05-fig-2-pass-by-reference}
+\caption{Pass pointer references to allow function to effect parameters of caller \parencite[pg.86]{kernighan-ritchie-1988}}
+\end{figure}
+::::
+:::
+
+# Pointers and Arrays (1 of 2)
+
+::: columns
+:::: {.column width=50%}
+- In C there is a strong relationship between pointers and arrays
+- An array declaration defines a block of 10 consecutive objects
+  - named `a[0]`, `a[1]`, ..., `a[9]`
+
+\vspace{0.1in}
+
+```c
+int a[10]; // a block of 10 ints
+```
+\vspace{0.2in}
+
+\begin{figure}
+\includegraphics[scale=0.10]{figures/kr05-fig-3-array}
+\label{fig:kr05-fig-3-array}
+\caption{An array of 10 integers \parencite[pg.87]{kernighan-ritchie-1988}}
+\end{figure}
+::::
+:::: {.column width=50%}
+- The notation `a[i]` refers to the `i`-th element of array `a`.
+- If `pa` is a pointer to an integer, then we can point it to the `0`-th
+  element like this:
+
+\vspace{0.2in}
+
+```c
+int *pa;
+pa = &a[0];
+```
+
+\begin{figure}
+\includegraphics[scale=0.10]{figures/kr05-fig-4-pointer-to-array}
+\label{fig:kr05-fig-4-pointer-to-array}
+\caption{pa points to a[0] \parencite[pg.87]{kernighan-ritchie-1988}}
+\end{figure}
+::::
+:::
+
+# Pointers and Arrays (2 of 2)
+
+::: columns
+:::: {.column width=50%}
+- if `pa` points to a particular element of an array, then `pa+1` point to the next element.
+  - This offset is based on type, e.g. a pointer to an int actually increases address by 4
+- `*(pa+1)` refers to `a[1]`, `*(pa+2)` refers to `a[2]`, `*(pa+i)` refers to `a[i]`
+
+\begin{figure}
+\includegraphics[scale=0.10]{figures/kr05-fig-5-pointer-indexing}
+\label{fig:kr05-fig-5-pointer-indexing}
+\caption{If pa points to a[0], then pa+i indexes the i-th element of a \parencite[pg.88]{kernighan-ritchie-1988}}
+\end{figure}
+::::
+:::: {.column width=50%}
+## Pointer Indexing
+
+The meaning of "adding 1 to a pointer", and by extension all pointer
+arithmetic, is that `pa+1` points to the next object, and `pa+i` points
+to the `i`-th object beyond `pa`.  This is regardless of type or size of
+variable pointed at.
+::::
+:::
+
+# Passing Arrays to Functions
+
+::: columns
+:::: {.column width=50%}
+- When an array name is passed to a function, what is
+  passed is the location of the initial element (pointer to element 0)
+- In C "strings" are arrays of characters, terminated by the null `'\0'` character
+  (more in a bit on C string character arrays)
+- Thus a canonical `strlen()` implementation takes a pointer to an array
+  of characters, and would look like the following
+  - See `kernel/string.c` for Xv6 string library implementations
+::::
+:::: {.column width=50%}
+```c
+// mystrlen: return length of string s
+int
+mystrlen(char *s)
+{
+  int n;
+
+  for (n = 0; *s != '\0'; s++)
+    n++;
+
+  return n;
+}
+```
+::::
+:::
+
+# Address Arithmetic
+
+# Character Pointers and Functions (1 of 3)
+
+::: columns
+:::: {.column width=50%}
+- In C, a **string constant** written as "I am a string" is represented
+  somewhere in memory as an array of characters
+  - the array is terminated with a null character `\0`, (byte pattern `00000000`)
+  - length in storage is thus one more than the number of characters between double quotes
+::::
+:::: {.column width=50%}
+- Consider these declarations, similar but subtle and important difference
+
+```c
+// an array, allocated on stack
+char amessage[] = "now is the time";
+// a pointer, string in constant sect 
+char *pmessage = "now is the time"; 
+```
+
+- `amessage` is allocated an array on function call stack, just big enough to hold
+  15 characters plus one more, the null character.
+  - can change individual elements
+- `pmessage` is a pointer to a character array allocated in global contants
+  - cannot modify a constant string
+::::
+:::
+
+# Character Pointers and Functions (2 of 3)
+
+- If you copy a string pointer like `s = t`, this only copies the pointer, both refer to same memory.
+- To copy characters need a loop
+- Version 1 (again see `kernel/string.c` `strncpy()` and `safestrcpy()` for xv6 library implementation)
+
+```c
+// strcpy (version 1): copy t to s; array subscript version
+void
+strcpy_v1(char *s, char *t)
+{
+  int i;
+
+  i = 0;
+  while ((s[i] = t[i]) != '\0')
+    i++;
+}
+```
+
+# Character Pointers and Functions (3 of 3)
+
+::: columns
+:::: {.column width=50%}
+For contrast, here is a second version using pointers and pointer
+arithmetic
+
+\vspace{0.1in}
+```c
+// strcpy (version 2): copy t to s
+// pointer version
+void
+strcpy_v2(char *s, char *t)
+{
+  while ((*s = *t) != '\0') {
+    s++;
+    t++;
+  }
+}
+```
+::::
+:::: {.column width=50%}
+Canonical C version you might see in our code
+
+\vspace{0.3in}
+```c
+// strcpy (version 4): copy t to s
+// pointer version 3
+void
+strcpy_v4(char *s, char *t)
+{
+  while ((*s++ = *t++))
+    ; // do nothing
+}
+```
+::::
+:::
+
+# Arrays of Pointers
+
+- Since pointers are variables, they can be stored in arrays just as other
+  variables
+  - `char *argv[]` is an array of pointers, more in a bit
+- Notice initialization of array of pointer to constant strings here
+
+```c
+int i;
+char *wordlist[] = {"charlie", "bravo", "delta", "alfa"};
+
+// array of 4 (char *) pointers
+printf("sizeof(wordlist): %ld\n", sizeof(wordlist));
+
+// can access "string" indexed into wordlist
+for (i = 0; i < 4; i++) {
+  printf("wordlist[%d] = <%s>\n", i, wordlist[i]);
+}
+
+
+```
+
+# Command Line Arguments
+
+::: columns
+:::: {.column width=50%}
+\begin{figure}
+\includegraphics[scale=0.15]{figures/kr05-fig-6-command-line-arg}
+\label{fig:kr05-fig-6-command-line-arg}
+\caption{Command line argv array of char * pointers \parencite[pg.103]{kernighan-ritchie-1988}}
+\end{figure}
+
+- When `main()` is called, it is passed in any command line arguments
+  - `int argc` the argument count
+  - `char *argv[]` an array of pointers, one for each command line argument
+- `argv[0]` always contains the name by which program was invoked 
+::::
+:::: {.column width=50%}
+```c
+// echo command line arguments
+int
+main(int argc, char *argv[])
+{
+  int i;
+
+  for (i = 0; i < argc; i++)
+    printf("argv[%d]: <%s>\n", 
+       i, argv[i]);
+}
+```
+
+```bash
+$ ex07 hello world
+argv[0]: <ex07>
+argv[1]: <hello>
+argv[2]: <world>
+```
+::::
+:::
+
+# Summary
+
+- point 1
+- point 2
+  
+
+# References
+\tiny
+\printbibliography
+
+
+::: columns
+:::: {.column width=50%}
+::::
+:::: {.column width=50%}
+::::
+:::
+
+
