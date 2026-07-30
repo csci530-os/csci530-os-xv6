@@ -8,6 +8,7 @@ PANDOC_LATEX_ARGS="-s -N"
 
 rule all:
 	input:  ["ch01-os-interfaces.pdf", \
+	         "ch02-os-organization.pdf", \
 	         "kr05-pointers-arrays.pdf", \
 	         "kr06-structures.pdf", \
 	        ]
