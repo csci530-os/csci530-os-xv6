@@ -1,0 +1,225 @@
+---
+title: "Ch 03: Page Tables"
+subtitle: "xv6 a simple Unix-like teaching Operating System"
+author: Derek Harter
+date:  Summer 2026
+theme: Madrid
+colorlinks: true
+linkcolor: gray
+filecolor: gray
+urlcolor: blue
+citecolor: blue
+
+section-titles: false
+toc: false
+toc_depth: 2
+output: 
+	beamer_presentation:
+    keep_tex: true
+classoption: aspectratio=169
+header-includes:
+  - \logo{\includegraphics[scale=0.25]{figures/etamu-logo}}
+  - \title [Python Assignments]{Python Assignments}
+  - \institute[East Texas A\&M]{Department of Computer Science \\East Texas A\&M University}
+  - \usepackage[backend=biber, style=apa]{biblatex}
+  - \addbibresource{slides.bib}
+  - \hypersetup{colorlinks=true, urlcolor=blue, citecolor=blue, linkcolor=green, filecolor=green}
+  - \usepackage[percent]{overpic}
+---
+
+
+# Page Tables
+
+Page tables are the most popular mechanism through which an operating system
+provides each process with its own private address space and memory
+
+- Page tables:
+  - determine what memory addresses mean
+  - determine what parts of physical memory can be accessed
+  - allow **isolation** of different process' address spaces
+  - allow to **multiplex** processes into a single physical memory
+  - allow illusion that each process has full control of memory address space 
+    with no other processes able to access
+- Page tables provide a level of indirection allowing some tricks used by xv6
+  - map same memory (trampoline page) in several address spaces
+  - guard kernel and user stacks with unmapped page to detect overflow
+  - allocate user heap memory lazily 
+
+# Paging Hardware (1 of 4)
+
+::: columns
+:::: {.column width=60%}
+- RISC-V instructions (both user and kernel) manipulate virtual addresses
+- The machine's RAM, or physical memory, is indexed with physical addresses
+- The RISC-V page table hardware maps each virtual address to physical address
+- Xv6 uses RISC-V Sv39 mode
+  - only bottom 39 bits (of 64) are used
+  - RISC-V page table is array of $2^{27} (134,217,728)$ **page table entries** PTEs
+  - Each PTE contains 44-bit physical page number PPN and flags
+  - Paging hardware translates top 27 bits of virtual address into page table index to find PTE
+  - Results in 56-bit physical address, 44-bits from PPN, and 12-bit offset
+::::
+:::: {.column width=40%}
+\begin{figure}
+\includegraphics[scale=0.20]{figures/ch03-fig-3-1-page-table-mapping}
+\label{fig:ch03-fig-3-1-page-table-mapping}
+\caption{An abstract view of a flat page table mapping virtual to physical addresses \parencite[pg.32]{cox-kaashoek-morris-2026}}
+\end{figure}
+::::
+:::
+
+# Paging Hardware (2 of 4)
+
+::: columns
+:::: {.column width=40%}
+\begin{figure}
+\includegraphics[scale=0.18]{figures/ch03-fig-3-2-riscv-address-translation}
+\label{fig:ch03-fig-3-2-riscv-address-translation}
+\caption{RISC-V address translation details \parencite[pg.33]{cox-kaashoek-morris-2026}}
+\end{figure}
+::::
+:::: {.column width=60%}
+- A page table gives the operating system control over virtual-to-physical
+  address translations
+  - page size $2^{12} = 4096$ bytes `kernel/riscv.h` `PGSIZE`
+  - Such a chunk is called a **page**
+- Actual page table layout is a bit more complex, three-level tree
+  - root of tree is 4096-byte page table containing 512 PTEs (8 bytes or 64 bits per PTE)
+  - first 9 bits of virtual address index top level page table, next mid level, etc.
+    - Allows memory-efficient way of managing PTEs
+  - Potentially requires 3 memory accesses for each VA $\rightarrow$ PA translation
+    - RISC-V CPU uses **Translation Look-aside Buffer** (TLB)
+::::
+:::
+
+# Paging Hardware (3 of 4)
+
+::: columns
+:::: {.column width=40%}
+\begin{figure}
+\includegraphics[scale=0.18]{figures/ch03-fig-3-2-riscv-address-translation}
+\label{fig:ch03-fig-3-2-riscv-address-translation}
+\caption{RISC-V address translation details \parencite[pg.33]{cox-kaashoek-morris-2026}}
+\end{figure}
+::::
+:::: {.column width=60%}
+- PTE_V Valid, indicates whether the PTE is present, if not reference causes page fault
+- PTE_R Readable, controls whether instructions are allowed to read the page
+- PTE_W Writable, controls whether instructions are allowed to write to the page
+- PTE_X Executable, controls whether CPU may interpret content of page as instructions and execute them
+- PTE_U User, controls whether instructions in user mode are allowed to access page
+- PTE_A Accessed, indicates if page has ever been accessed (read from) since created
+- PTE_D Dirty, indicates if page has been written to
+::::
+:::
+
+# Paging Hardware (4 of 4)
+
+::: columns
+:::: {.column width=40%}
+\begin{figure}
+\includegraphics[scale=0.18]{figures/ch03-fig-3-2-riscv-address-translation}
+\label{fig:ch03-fig-3-2-riscv-address-translation}
+\caption{RISC-V address translation details \parencite[pg.33]{cox-kaashoek-morris-2026}}
+\end{figure}
+::::
+:::: {.column width=60%}
+- To tell CPU to use page table, kernel writes physical address of root page-table
+  into `satp` register 
+  - `kernel/start.c` disables paging initially
+  - `kernel/main.c` calls `kvminithart()` in `kernel/vm.c` which enables kernel page table
+  - Later each process has a page table created, and `satp` is set each time xv6 switches to user mode
+- CPU translates all addresses by subsequent instructions using page table
+  pointed to by `satp`
+  - Each multicore CPU has own `satp` so each can run different processes
+    with private address space
+- From the kernel's point of view, page table is data stored in memory
+  - kernel creates and modifies page tables using code much like any you would
+    see for tree-shaped data structure
+::::
+:::
+
+# Kernel Address Space
+
+::: columns
+:::: {.column width=60%}
+\begin{figure}
+\includegraphics[scale=0.16]{figures/ch03-fig-3-3-kernel-page-table}
+\label{fig:ch03-fig-3-3-kernel-page-table}
+\caption{On the left xv6's kernel virtual address space.  RWX refer to PTE read, write and execute permissions.  On the right, the RISC-V physical address space that xv6 expects to see. \parencite[pg.34]{cox-kaashoek-morris-2026}}
+\end{figure}
+::::
+:::: {.column width=40%}
+- When it starts, xv6 create a single page table describing the kernel's
+  address space
+  - configures layout of its address space to give it access to all of physical memory
+  - configured to allow access to various hardware resources at predictable virtual addresses
+  - configured in `kernel/memlayout.h`
+::::
+:::
+
+# Process Address Space (1 of 2)
+
+::: columns
+:::: {.column width=40%}
+\begin{figure}
+\includegraphics[scale=0.16]{figures/ch03-fig-3-4-process-address-space}
+\label{fig:ch03-fig-3-4-process-address-space}
+\caption{A process's user address space, with its initial stack \parencite[pg.39]{cox-kaashoek-morris-2026}}
+\end{figure}
+::::
+:::: {.column width=60%}
+- Each process has its own page table
+- When xv6 switches between processes, it also changes page tables
+- User addresses start at 0 and end at MAXVA (0x4000000000) `kernel/riscv.h` near bottom
+- A processes address space has pages with
+  - text of the program (instructions, permissions are PTE_R, PTE_X and PTE_U)
+  - pre-initialized data (constants, global variables PTE_R, PTE_W, PTE_U)
+  - a page for the stack (PTE_R, PTE_W, PTE_U)
+  - pages for dynamic heap (PTE_R, PTE_W, PTE_U)
+::::
+:::
+
+# Process Address Space (2 of 2)
+
+::: columns
+:::: {.column width=40%}
+\begin{figure}
+\includegraphics[scale=0.16]{figures/ch03-fig-3-4-process-address-space}
+\label{fig:ch03-fig-3-4-process-address-space}
+\caption{A process's user address space, with its initial stack \parencite[pg.39]{cox-kaashoek-morris-2026}}
+\end{figure}
+::::
+:::: {.column width=60%}
+Some properties of xv6 use of page tables here:
+
+1. Different process' page tables translate user addresses to different pages
+   of physical memory, so that each process has private user memory
+2. Each process sees its memory as having contiguous virtual addresses starting
+   at 0, while the process's physical memory can be non-contiguous
+3. The kernel maps a page with trampoline code at the top of the user address space 
+   (without PTE_U), thus a single page of physical memory shows up in all
+   address spaces, but can be used only by the kernel.
+::::
+:::
+
+
+
+# Summary
+
+- 
+  
+
+# References
+\tiny
+\printbibliography
+
+
+::: columns
+:::: {.column width=50%}
+::::
+:::: {.column width=50%}
+::::
+:::
+
+

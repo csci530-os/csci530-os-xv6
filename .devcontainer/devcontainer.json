@@ -1,5 +1,5 @@
 {
-	"name": "Class Python / Jupyter Work Environment",
+	"name": "Dev Container: Xv6 Operating System",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": ".",
@@ -29,14 +29,14 @@
 			]
 		}
 	},
-	// enable gpu access / passthrough
-	//"runArgs": [
-	//	"--gpus=all"
-	//],
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [
-		8888
+	// set container hostname
+	"runArgs": [
+		"--hostname=xv6os"
 	],
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	//"forwardPorts": [
+	//	8888
+	//],
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "python --version",
 	// "postStartCommand": "nohup bash -c 'jupyter lab --ip=0.0.0.0 --port=8888 --allow-root --NotebookApp.token=`` --NotebookApp.password=`` ' > nohup.out 2>&1",
