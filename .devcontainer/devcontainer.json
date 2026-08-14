@@ -1,5 +1,5 @@
 {
-	"name": "Dev Container: Xv6 Operating System",
+	"name": "Xv6 Operating System",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": ".",

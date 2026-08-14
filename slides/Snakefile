@@ -10,6 +10,7 @@ rule all:
 	input:  ["ch01-os-interfaces.pdf", \
 	         "ch02-os-organization.pdf", \
 	         "ch03-page-tables.pdf", \
+	         "ch04-traps-system-calls.pdf", \
 	         "kr05-pointers-arrays.pdf", \
 	         "kr06-structures.pdf", \
 	         "gdb-debugging.pdf", \
