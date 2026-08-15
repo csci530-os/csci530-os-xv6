@@ -12,6 +12,7 @@ main(int argc, char *argv[])
     pid = wait((int *)0);
     printf("child %d is done\n", pid);
   } else if (pid == 0) {
+    pause(10);
     printf("child: exec echo\n");
     char *argv[3];
     argv[0] = "echo";

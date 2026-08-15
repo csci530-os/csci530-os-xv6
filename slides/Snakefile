@@ -50,7 +50,7 @@ rule tex_to_pdf:
 rule slide_title_to_png:
         input: "{file}.pdf"
         output: "{file}.png"
-        shell: "convert -density 300 -quality 100 {input} {output}"
+        shell: "convert -density 600 -quality 100 {input} {output}"
 
 rule clean:
 	shell:

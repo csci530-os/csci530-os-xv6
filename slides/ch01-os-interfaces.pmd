@@ -11,7 +11,7 @@ urlcolor: blue
 citecolor: blue
 
 section-titles: false
-toc: false
+toc: true
 toc_depth: 2
 output: 
 	beamer_presentation:
@@ -27,8 +27,14 @@ header-includes:
   - \usepackage[percent]{overpic}
 ---
 
+# 
+\title{Ch 01: System Call Interface, Processes and Memory}
+\maketitle
+\section{System Call Interface, Processes and Memory}
 
 # Operating System Interfaces
+
+\subsection{Operating System Interfaces}
 
 ::: columns
 :::: {.column width=33%}
@@ -57,7 +63,7 @@ An OS provides services through an interface (system call API)
 
 # xv6 Operating System
 
-- (Re)implementation of Unix V6
+- (Re)implementation of Unix V6 [History of Unix](https://en.wikipedia.org/wiki/History_of_Unix) \parencite{wikipedia-unix-history-2026}
 - We are using a RISC V port for this class
 - **kernel**: a special program that provides services to running programs
 - **process**: a running program that uses OS kernel services 
@@ -72,6 +78,8 @@ An OS provides services through an interface (system call API)
 \end{figure}
 
 # xv6 System Calls
+
+\subsection{System Calls}
 
 - **system call**: the system interface of the OS kernel
   - **kernel space**: privileged mode supported by hardware protection mechanisms
@@ -108,6 +116,8 @@ there's an error.
 
 # Processes and Memory (1 of 3)
 
+\subsection{Processes and Memory}
+
 - An xv6 processes consists of 
   - user-space memory (instructions, data and stack)
   - per-process state private to the kernel (process table)
@@ -121,6 +131,7 @@ there's an error.
   - `fork()` gives new process exact copy of calling process's memory
   - returns twice, `PID` 0 in child and non-zero in parent
 - **`exit()`** system call causes process to stop executing
+  - release resource back to kernel, such as memory and open files
 - **`wait()`** system call returns `PID` of exited child or waits for one to exit
 - The **`exec()`** system call replaces process's memory with a new image
   - Loaded from file
@@ -164,6 +175,22 @@ printf("exec error\n");
 ```
 ::::
 :::
+
+# Summary
+
+- Operating Systems
+  - provide simplified abstract interfaces for low-level hardware
+  - manage and allocate resources to share among multiple programs
+  - **system call** the system interface of the OS kernel
+  - **kernel**: provides services for running processes
+    - **kernel space** privileged mode supported by hardware protection mechanisms
+  - **process**:  a running program that uses OS kernel services
+    - **user space** normal unprivileged execution of instructions
+
+# 
+\title{Ch 01: Input/Output and File Descriptors}
+\maketitle
+\section{Input/Output and File Descriptors}
 
 # I/O and File Descriptors
 
@@ -308,10 +335,22 @@ else {
 ::::
 :::
 
+# Summary
+
+- File descriptors are a powerful abstraction
+  - They hide details of what they are connected to: a file, a device, a pipe
+- Pipes are small kernel buffers exposed to processes as a pair of file descriptors
+  for reading / writing from / to
+
+# 
+\title{Ch 01: File System}
+\maketitle
+\section{File System}
+
 
 # File System
 
-The xv6 file system is basic Unix file systems
+The xv6 file system is a basic Unix file system
 
 ::: columns
 :::: {.column width=50%}
@@ -392,18 +431,6 @@ mknod("/console", 1, 1);
 
 # Summary
 
-- Operating Systems
-  - provide simplified abstract interfaces for low-level hardware
-  - manage and allocate resources to share among multiple programs
-  - **system call** the system interface of the OS kernel
-  - **kernel**: provides services for running processes
-    - **kernel space** privileged mode supported by hardware protection mechanisms
-  - **process**:  a running program that uses OS kernel services
-    - **user space** normal unprivileged execution of instructions
-- File descriptors are a powerful abstraction
-  - They hide details of what they are connected to: a file, a device, a pipe
-- Pipes are small kernel buffers exposed to processes as a pair of file descriptors
-  for reading / writing from / to
 - File system in Unix like system contain
   - **data files**: arrays / streams of bytes
   - **directories**: organize file system structure into tree hierarchy

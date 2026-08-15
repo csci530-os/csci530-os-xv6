@@ -12,6 +12,7 @@ main(int argc, char *argv[])
     pid = wait((int *)0);
     printf("child %d is done\n", pid);
   } else if (pid == 0) {
+    pause(10);
     printf("child: exiting\n");
     exit(0);
   } else {
