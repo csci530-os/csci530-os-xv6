@@ -15,9 +15,9 @@ RUN groupadd --gid $USER_GID $USERNAME \
     # [Optional] Add sudo support. Omit if you don't need to install software after connecting.
     && apt-get update \
     # Install build toolchain to build and debug xv6-riscv code
-    && apt-get install -y sudo git build-essential gdb-multiarch qemu-system-misc gcc-riscv64-linux-gnu binutils-riscv64-linux-gnu clang-format \
+    && apt-get install -y sudo git build-essential gdb-multiarch qemu-system-misc gcc-riscv64-linux-gnu binutils-riscv64-linux-gnu clang-format bc \
     # Install these if want to build slides and xv6 book using pdflatex
-    && apt-get install -y snakemake pandoc python3-pweave texlive texlive-fonts-recommended texlive-latex-recommended biber texlive-bibtex-extra texlive-fonts-extra texlive-science ghostscript gnuplot locales psutils a2ps \
+    # && apt-get install -y snakemake pandoc python3-pweave texlive texlive-fonts-recommended texlive-latex-recommended biber texlive-bibtex-extra texlive-fonts-extra texlive-science ghostscript gnuplot locales psutils a2ps \
     && mkdir -p /etc/sudoers.d \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME

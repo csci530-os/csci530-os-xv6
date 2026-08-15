@@ -18,6 +18,9 @@ EOF
 
 cat >> /root/.bashrc <<'EOF'
 
+# useful aliases root user bashrc file
+alias ll='ls -alh'
+
 # search for nvidia libraries and add to LD_LIBRARY_PATH if
 # nvidia / cuda support is installed
 # see: https://dev.to/metal3d/how-to-resolve-the-dlopen-problem-with-nvidia-and-pytorch-or-tensorflow-inside-a-virtual-env-181e
@@ -40,6 +43,10 @@ PYTHON_ENV=$PYTHON_ENV
 EOF
 
 cat >> /home/$USERNAME/.bashrc <<'EOF'
+
+# useful aliases for user bashrc file
+alias ll='ls -alh'
+alias smake='snakemake -c 1'
 
 # search for nvidia libraries and add to LD_LIBRARY_PATH if
 # nvidia / cuda support is installed
