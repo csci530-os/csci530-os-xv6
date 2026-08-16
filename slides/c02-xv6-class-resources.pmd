@@ -1,0 +1,78 @@
+---
+title: "Setting up xv6 Compilation and using the OS Class Resources"
+subtitle: "xv6 a simple Unix-like teaching Operating System"
+author: Derek Harter
+date:  Summer 2026
+theme: Madrid
+colorlinks: true
+linkcolor: gray
+filecolor: gray
+urlcolor: blue
+citecolor: blue
+
+section-titles: false
+toc: false
+toc_depth: 2
+output: 
+	beamer_presentation:
+    keep_tex: true
+classoption: aspectratio=169
+header-includes:
+  - \logo{\includegraphics[scale=0.25]{figures/etamu-logo}}
+  - \title [Python Assignments]{Python Assignments}
+  - \institute[East Texas A\&M]{Department of Computer Science \\East Texas A\&M University}
+  - \usepackage[backend=biber, style=apa]{biblatex}
+  - \addbibresource{slides.bib}
+  - \hypersetup{colorlinks=true, urlcolor=blue, citecolor=blue, linkcolor=green, filecolor=green}
+  - \usepackage[percent]{overpic}
+---
+
+
+
+# Cloning the CSci Operating Systems Class Repository
+
+- You first need to have 
+  [Git / Docker / VSCode DevContainers](https://github.com/etamu-class/vscode-docker-devcontainer)
+  setup so you can clone repositories and create docker dev containers.
+- Clone the [csci530-os-xv6 Class Resources Repository](https://github.com/csci530-os/csci530-os-xv6)
+  - `git clone https://github.com/csci530-os/csci530-os-xv6`
+  - Can only clone read only using `https` url
+- Reopen container in a Docker / DevContainer
+  - You can use Docker only, a `.devcontainer/Dockerfile` is provided
+  - This video shows running the Docker container using VSCode DevContainers
+
+# CSci Operating Systems Class Resources
+
+- `docs`: Open source `xv6-book.pdf` textbook with instructor highlights and notes
+  - Also the `xv6-src-booklet-rev5.pdf` though page breaks are incorrect
+- `slides`: slide decks and source file for lecture video slides
+- `code`: source code examples used in lectures
+  - See discussion in setup for how to use
+- `xv6`: location where the `xv6-riscv` teaching os source code is placed
+  
+# Setting up xv6 Source Code Compilation and Emulation
+
+- Testing your installation
+- Source code setup `make setup`
+- Compiling and running xv6-riscv
+- Running xv6 with gdb debugger
+  - See the `gdb Debugging` lecture for additional help
+- Using the lecture source code examples
+  - And in general adding and compiling user programs 
+
+# Summary
+
+- 
+  
+
+# References
+\tiny
+\printbibliography
+
+
+::: columns
+:::: {.column width=50%}
+::::
+:::: {.column width=50%}
+::::
+:::

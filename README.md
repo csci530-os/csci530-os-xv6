@@ -24,9 +24,9 @@ Materials developed for [East Texas A&M University](http://tamuc.edu)
 course CSci 530: Operating Systems.  These materials
 were initially developed in the Spring 2026 and Summer 2026 semesters.
 This course is based on the MIT Operating System course
-6.1810 Operating System Engineering.  We use the Xv6 Unix-like
+6.1810 Operating System Engineering.  We use the xv6 Unix-like
 teaching operating system to present OS concepts and create assignments
-to build or modify portions of the working Xv6 OS for the course.
+to build or modify portions of the working xv6 OS for the course.
 
 - [xv6-riscv code repository](https://github.com/mit-pdos/xv6-riscv)
 - [xv6-riscv-book](https://github.com/mit-pdos/xv6-riscv-book)
@@ -47,7 +47,7 @@ installed and available.
 
 ## Testing Your Installation
 
-The RISC-V gnu gcc toolchain and qemu emulator are installed as part
+The RISC-V gnu gcc toolchain and QEMU (Quick EMUlator) are installed as part
 of the class container.  Check you have the correct tools available using the
 following commands:
 
@@ -69,13 +69,15 @@ These tools should be installed automatically as part of the creation
 of the Docker DevContainer.  Do not proceed until you have all of the
 tools installed and available for use in your development environment.
 
-## xv6 Code and Book Source Setup
+## xv6-riscv Code and Book Source Setup
 
 This repository does not contain a copy of the xv6 teaching
 operating source code.  Instead a clone of the official repository of
 the operating system source and book source code is made for use
-in this running container.  If needed, you can clean these
-source directories and reset them up at anytime if needed.
+in this running container. The repository `.devcontainer/Dockerfile` should, however,
+setup and install all of the needed packages to support compiling and running
+the xv6 teaching operating system.  If needed, you can clean these
+source directories and (re)set them up at anytime.
 
 Run the following command to clone the source code and LaTeX book
 code repositories.  These will be cloned into a subdirectory named
@@ -90,10 +92,11 @@ cp -f xv6/patch/Makefile.xv6-riscv-src-booklet xv6/xv6-riscv-book/xv6-riscv-src-
 cp -f xv6/patch/runoff xv6/xv6-riscv-book/xv6-riscv-src-booklet/runoff
 ```
 
-This command is safe to rerun.  The source code for the operating system
+This command is safe to rerun, and will perform a `git update` if the
+git repositories have already been cloned.  The source code for the operating system
 is placed in the `xv6/xv6-riscv` subdirectory.  The source code to build
 the companion textbook is placed in `xv6/xv6-riscv-book`.  Some of the
-make procedure to build the book are modified to work in this environment.
+make procedure to build the book are patched to work in this environment.
 
 You can clone the repository in a separate working directory if you
 desire.  The main purpose of this container is to provide a working
@@ -108,20 +111,19 @@ rm -rf xv6/xv6-riscv xv6/xv6-riscv-book
 
 To delete all of the working repository copies, and rerun setup.  This
 might be necessary if you change some configuration in the running code
-that breaks your build or system, and need to restart from a clean
-starting point.
+that breaks your build or system, and need to restart from a clean build repository.
 
 
 ## Compiling and Running xv6-riscv Code
 
 You can and should be examining the code of xv6, and making modifications
-to the system and user programs, as you read the text.  The code of the
+to the system and user programs as you read the text.  The code of the
 teaching operating system is the primary source of study in this class.
 By the end of this class, you should be relatively familiar with all of the
-system and user space code in xv6, and have a general feel for how the
+system and user space code in xv6, and have a general understanding of how the
 operating system works.
 
-To build the xv6 operating system source code and start it running in the qemu
+To build the xv6 operating system source code and start it running in the QEMU
 emulator, do the following.
 
 Change into the repository for the xv6 os source code:
@@ -131,9 +133,9 @@ Change into the repository for the xv6 os source code:
 (base) student@xv6os:/workspaces/csci530-os-xv6/xv6/xv6-riscv$
 ```
 
-If the correct riscv toolchain are installed, the `make qemu` of the
-qemu target will compile everything and start xv6 running in the
-qemu emulator.
+If the correct RISC-V toolchain are installed, the `make qemu` 
+target will compile everything and start xv6 running in the
+QEMU emulator.
 
 ```bash
 (base) student@xv6os:/workspaces/csci530-os-xv6/xv6/xv6-riscv$ make qemu
@@ -158,7 +160,7 @@ xv6 kernel is booting
 hart 2 starting
 hart 1 starting
 init: starting sh
-$ <C-a ?>
+$ <C-a h>
 C-a h    print this help
 C-a x    exit emulator
 C-a s    save disk data back to file (if -snapshot)
@@ -174,21 +176,22 @@ QEMU: Terminated
 
 A lot of the output from the compilation has been omitted in the `...`
 above, though usually the compilation of all of the code should complete
-quite quickly.  Notice that we left in the invocation of the `qemu-system-riscv64`
-command that actually starts up the `qemu` emulation of the xv6 kernel.
-Some of the options here specify which kernel image to use, the amount
-of memory available, and device drivers and file system images to use.
-The `hart 2 starting` and `hart 1 starting` refer to the emulated
-"hardware threads".  Bu default 2 hardware threads are started and
-available.  A hardware thread is a RISC-V terms for a CPU process core,
-so we are emulating 2 cpu cores by default here.  (Note: the `-smp 3`
-flag controls the number of symmetric multi-processors emulated by
-`qemu` so you may ask why there are only two hardware threads when
-`-smp` is set to 3.  We may talk about this later in the class.)
+quite quickly.  Notice that we left in the invocation of the
+`qemu-system-riscv64` command that actually starts up the QEMU emulation
+of a RISC-V processor running the xv6 kernel. Some of the options here
+specify which kernel image to use, the amount of memory available, and
+device drivers and file system images to use. The `hart 2 starting` and
+`hart 1 starting` refer to the emulated "hardware threads".  The default
+is for 2 hardware threads to started and available in the emulation.  A
+hardware thread is a RISC-V terms for a CPU processor core, so we are
+emulating 2 CPU cores by default here.  (Note: the `-smp 3` flag
+controls the number of symmetric multi-processors emulated by QEMU so
+you may ask why there are only two hardware threads when `-smp` is set
+to 3.  We may talk about this later in the class.)
 
-To get access to the `qemu` escape sequences use `<C-a ?>` as shown
-(hold the control key and hit `a`, followed by a `?`).  You can cause
-the `qemu` emulator to exit using the `<C-a x>` sequence.
+To get access to the QEMU escape sequences use `<C-a h>` as shown
+(hold the control key and hit `a`, followed by `h`).  You can cause
+the QEMU emulator to exit using the `<C-a x>` sequence.
 
 If needed, you can first perform a `make clean` before invoking
 `make qemu`.  This will ensure that all files are rebuilt for the
@@ -223,7 +226,7 @@ terminal inside of your Docker/DevContainer to access the gdb port that
 was opened.
 
 A file named `.gdbinit` should have been created in the
-`xv6-riscv` source code directory, as shown in the output above, the
+`xv6-riscv` source code directory, as shown in the output above. The
 file has the following contents:
 
 ```bash
@@ -237,12 +240,13 @@ set disassemble-next-line auto
 set riscv use-compressed-breakpoints yes
 ```
 
-You may get a warning if you don't specify a `safe-path` for gdb.  So before
-running gdb, perform the following to create a global gdbinit configuration file
-that will always allow you to connect a gdb session.  The following creates
-a file named `~/.config/gdb/gdbinit`, so you could also create this by opening
-the file in your editor.  Once created you won't have to recreate, so
-the following only needs to be done 1 time:
+You may get a warning if you don't specify a `safe-path` for gdb.  So
+before running gdb, perform the following to create a global `gdbinit`
+configuration file that will always allow you to connect a gdb session.
+The following creates a file named `~/.config/gdb/gdbinit`. You could
+instead create and add in this line using your VSCode text editor as
+well. Once created you won't have to recreate this file, so the
+following only needs to be done 1 time:
 
 ```bash
 (base) student@xv6os:/workspaces/csci530-os-xv6/xv6/xv6-riscv$ 
@@ -267,9 +271,9 @@ Some basic `gdb` commands:
 | `n` / `next`              | Continue to next line, not entering function call on current line |
 | `watch expression`        | Will stop (break) when value of expression changes                |
 | `rwatch expression`       | Will stop (break) when value of expression is read                |
-| `q`                       | Quit from the debugging session                                   |
+| `q` / `quit`              | Quit from the debugging session                                   |
 
-I usually set a break on the `_entry` and/or on the `start` then do a
+I usually set a break on the `_entry` and/or on the `start`  symbols / functions then do a
 `continue` to jump to that point and step from there.
 
 ```bash
@@ -292,7 +296,7 @@ Breakpoint 1, _entry () at kernel/entry.S:12
 
 ## xv6 Text Book LaTeX Source  Build
 
-The LaTeX source to build the open source textbook and companion source
+The \LaTeX source to build the open source textbook and companion source
 code booklet is also cloned as part of the setup process.  A copy of
 the text book is available in the `~/docs/xv6-book.pdf` directory of this
 repository, which includes the instructors highlights and notes in the
@@ -314,7 +318,7 @@ open source text book for the class code, and the `xv6-src-booklet.pdf`,
 which is a numbered source code listing of the actual xv6 os code.
 
 **Note**: You will need to install additional packages for the
-LaTeX build.  See the `.devcontainer/Dockerfile` to uncomment out the
+\LaTeX build.  See the `.devcontainer/Dockerfile` to uncomment out the
 needed package install command, or try running the following to install
 them, this install takes quite a bit of time to complete:
 
@@ -332,3 +336,9 @@ build is currently a bit broken, and page breaks are not quite coming
 out correctly in the booklet, which needs to be fixed at some point.
 
 # Class Resources
+
+- [Setting Up Git / Docker / VSCode DevContainers](https://github.com/etamu-class/vscode-docker-devcontainer)
+- [GDB Cheat Sheet](https://darkdust.net/files/GDB%20Cheat%20Sheet.pdf) 
+- [xv6-riscv code repository](https://github.com/mit-pdos/xv6-riscv)
+- [xv6-riscv-book](https://github.com/mit-pdos/xv6-riscv-book)
+- [MIT 6.1810: Operating System Engineering](https://pdos.csail.mit.edu/6.1810/2026/xv6.html)

@@ -7,7 +7,8 @@ PANDOC_BEAMER_ARGS="--to=beamer --standalone --dpi=300"
 PANDOC_LATEX_ARGS="-s -N"
 
 rule all:
-	input:  ["ch01-os-interfaces.pdf", \
+	input:  ["c02-xv6-class-resources.pdf" ,\
+		     "ch01-os-interfaces.pdf", \
 	         "ch02-os-organization.pdf", \
 	         "ch03-page-tables.pdf", \
 	         "ch04-traps-system-calls.pdf", \
