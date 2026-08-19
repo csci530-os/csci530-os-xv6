@@ -29,6 +29,9 @@ header-includes:
 
 
 # Structures
+\section{Structures}
+\nocite{kernighan-ritchie-1988}
+\nocite{tutorialspoint-c-tutorial-2026}
 
 ::: columns
 :::: {.column width=33%}
@@ -63,6 +66,7 @@ To declare a structure (don't forget training `;`):
 :::
 
 # Pointers to Structures
+\section{Pointers to Structures}
 
 - Can declare and use pointer to a struct, just like pointer to any defined type
 - Special operator `->` will access and dereference a pointer to a structure.
@@ -80,6 +84,7 @@ struct stuff {
 };
 
   struct stuff s;
+  struct stuff *sp;
 
   // a bunch of member access operations
   s.ptr = "hello";
@@ -88,22 +93,21 @@ struct stuff {
   s.byte = 'c';
   s.bytes[0] = 'h';
 
-  // struct is allocated enough bytes to hold all members,
-  // NOTE: the ptr and bytes are really pointers, so they are 8 bytes each
-  // Question: why is size 24 here, is that what you expected?
-  printf("sizeof(s): %ld\n\n", sizeof(s));
-
-  printf("ptr: <%s>\n", s.ptr);
-  printf("num1: <%d>\n", s.num1);
-  printf("byte: <%c>\n", s.byte);
-  printf("\n\n");
+  sp = &s;
+  printf("num1: %d", sp->num1)
 
 ```
 
 # Summary
 
-- point 1
-- point 2
+- A structure is a collection of one or more variables, of different types
+  - Grouped together under a single name (record, row of a database, etc.)
+  - User member operator `.` to access members
+  - A structure will be a (byte aligned) sized allocation in memory
+  - Can create arrays of structures, can pass structures to and return from functions
+- Can declare and use pointer to a struct
+  - Special operator `->` performs both member access and dereference in single operation
+  - Often we pass in a pointer to a structure buffer, to be filled in by system call
   
 
 # References

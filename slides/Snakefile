@@ -15,6 +15,7 @@ rule all:
 	         "kr05-pointers-arrays.pdf", \
 	         "kr06-structures.pdf", \
 	         "gdb-debugging.pdf", \
+	         "ps02.pdf", \
 	        ]
 
 rule pmd_to_md:
@@ -28,7 +29,7 @@ def pandoc_args(wildcards):
 	#else:
 	#	return PANDOC_LATEX_ARGS
     # only doing beamer builds in this project
-	return PANDOC_BEAMER_ARGS
+	return PANDOC_LATEX_ARGS
 
 rule md_to_tex:
 	input:  "{file}.md"

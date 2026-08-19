@@ -29,15 +29,15 @@ main(int argc, char *argv[])
   printf("\n\n");
 
   y = *ip; // y is now 1
-  printf("x=%d\n\n", x);
-
-  *ip = 0; // x is now 0
   printf("y=%d\n\n", y);
 
+  *ip = 0; // x is now 0
+  printf("x=%d\n\n", x);
+
   ip = &z[0]; // ip now points to z[0]
-  printf("address of z[0]   : %ld\n", (long unsigned int)(&z[0]));
-  printf("address in ip     : %ld\n", (long unsigned int)(ip));
-  printf("base address of z : %ld\n", (long unsigned int)(z));
+  printf("address of z[0]   : %lx\n", (long unsigned int)(&z[0]));
+  printf("address in ip     : %lx\n", (long unsigned int)(ip));
+  printf("base address of z : %lx\n", (long unsigned int)(z));
   printf("\n\n");
 
   // more examples, a dereferenced pointer can be used anywhere the

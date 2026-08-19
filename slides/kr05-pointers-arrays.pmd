@@ -1,5 +1,5 @@
 ---
-title: "Ch 05: Pointers andd Arrays"
+title: "Ch 05: Pointers and Arrays"
 subtitle: "The C Programming Language ($2^{ed}$)"
 author: Derek Harter
 date:  Summer 2026
@@ -29,6 +29,8 @@ header-includes:
 
 
 # Pointers and Addresses
+\section{Pointers, Operators and Function Arguments}
+\nocite{tutorialspoint-c-tutorial-2026}
 
 \begin{figure}
 \includegraphics[scale=0.25]{figures/kr05-fig-1-pointer}
@@ -117,6 +119,7 @@ swap(int *px, int *py)
 :::
 
 # Pointers and Arrays (1 of 2)
+\section{Pointers and Arrays}
 
 ::: columns
 :::: {.column width=50%}
@@ -213,6 +216,7 @@ mystrlen(char *s)
 # Address Arithmetic
 
 # Character Pointers and Functions (1 of 3)
+\section{Character Pointers and Strings in C}
 
 ::: columns
 :::: {.column width=50%}
@@ -358,8 +362,20 @@ argv[2]: <world>
 
 # Summary
 
-- point 1
-- point 2
+- A pointer is a variable that contains the **address** of another variable
+  - Both powerful and dangerous, many high-level languages don't have memory address data type
+  - `&` operator to get **address** of / pointer to an object
+  - `*` **indirection** or **dereferencing** operator
+- Pointers have types, except `void *`
+- No explicit pass by reference in ansi C, pass pointer to function instead
+- Strong relationship between pointer and array in C
+  - Array variable is base address (pointer) to block of data of particular type
+  - Array indexing and pointer arithmetic are essentially equivalent
+- No high-level string type in ansi C
+  - Use arrays of characters
+  - by convention, don't pass length, use `\0` null character as sentinel for end of string
+  - xv6 has a (basic) string library (`kernel/string.c`)
+  - Arrays of pointers `char *argv[]` are how process command line arguments are passed
   
 
 # References

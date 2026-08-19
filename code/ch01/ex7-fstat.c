@@ -7,7 +7,10 @@ int
 main(int argc, char *argv[])
 {
   struct stat sb;
-  if (stat("input.txt", &sb) == -1) {
+  int fd;
+
+  fd = open("input.txt", O_RDONLY);
+  if (fstat(fd, &sb) == -1) {
     fprintf(2, "Error trying to stat() file, does it exist?\n");
     exit(0);
   }

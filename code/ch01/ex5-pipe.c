@@ -7,10 +7,10 @@ int
 main(int argc, char *argv[])
 {
   int p[2];
-  char *argv[2];
+  char *pargv[2];
 
-  argv[0] = "wc";
-  argv[1] = 0;
+  pargv[0] = "wc";
+  pargv[1] = 0;
 
   pipe(p);
 
@@ -19,7 +19,7 @@ main(int argc, char *argv[])
     dup(p[0]);
     close(p[0]);
     close(p[1]);
-    exec("wc", argv);
+    exec("wc", pargv);
   } else {
     close(p[0]);
     write(p[1], "hello world\n", 12);

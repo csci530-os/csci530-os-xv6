@@ -11,7 +11,7 @@ urlcolor: blue
 citecolor: blue
 
 section-titles: false
-toc: false
+toc: true
 toc_depth: 2
 output: 
 	beamer_presentation:
@@ -27,6 +27,10 @@ header-includes:
   - \usepackage[percent]{overpic}
 ---
 
+# 
+\title{Ch 02: Isolation Abstractions}
+\maketitle
+\section{Isolation Abstractions}
 
 # Operating System Requirements
 
@@ -99,6 +103,22 @@ to using unprivileged user mode instructions.
   - RISC-V provides **ecall** instruction for system calls, it switches CPU from user to supervisor mode.
 ::::
 :::
+
+# Summary
+
+- There are 3 requirements an OS must fulfill 1) multiplexing, 2) isolation 3) interaction
+- In addition, OS goal is to provide **abstractions**, high-level interfaces for using complicated hardware
+  - All storage and device interactions through file descriptor abstraction
+  - Process abstraction pvoides multiplexing and illusion of complete control of a cpu
+  - `exec()` build virtual memory abstraction, illusion of an address space that no other process has access to
+  - The unix system-call interface provides both convenience and strong isolation
+- Strong isolation and protected memory require hardware support
+  - All cpu architectures for general purpose OS, like the RISC-V architecture, provide supervisor and user modes (`ecall` instruction)
+
+# 
+\title{Ch 02: Kernel Organization}
+\maketitle
+\section{Kernel Organization}
 
 # Kernel Organization (1 of 2)
 
@@ -183,6 +203,22 @@ in production.
 | Misc      | sleeplock.c   | Locks that yield the CPU                              |
 |           | spinlock.c    | Locks that don't yield the CPU                        |
 |           | string.c      | C string and byte-array library                       |
+
+# Summary
+
+- Generally OS can currently be divided into 2 general design approaches
+  - **monolithic kernel** traditional approach, entire OS resides in kernel
+  - **microkernel** put absolute minimum of code in kernel that is needed, pull services where possible out to user mode processes
+- OS designs all implement key design elements
+  - system calls (API / abstraction)
+  - page tables (virtual memory management)
+  - concurrency mechanisms (processes and abstractions for multiplexing)
+  - file system abstractions
+
+# 
+\title{Ch 02: Process Abstraction}
+\maketitle
+\section{Process Abstraction}
 
 # Process Overview
 
@@ -310,6 +346,19 @@ in production.
    - starts shell on console
 
 The system is up!
+
+# Summary
+
+- The unit of isolation in unix-like OS including xv6 is the **process** abstraction
+- Uses user/supervisor mode flags, page table virtual address spaces and time slicing to implement process abstraction and isolation
+- Process address space loads user code and data, has a stack and heap
+  - Special trampoline and trapframes mapped to both user and kernel space
+    - **trampoline page** code used to transition in and out of kernel mode
+    - **trapframe page** saves process register state to restore
+  - `struct proc` in `kernel/proc.h` are process table entries that kernel uses to maintain process state
+- Process switching is done by kernel, suspends currently running process, saves its state, and restores state of another process to run
+  - process state in process table is running, runnable, sleeping, zombie, etc.
+  - process struct `pagetable` holds the process's page table
 
 # Security Model
 

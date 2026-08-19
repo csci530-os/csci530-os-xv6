@@ -257,15 +257,15 @@ for (;;) {
 ::: columns
 :::: {.column width=60%}
 - **`close()`** system call releases file descriptor for reuse
-- `fork()` copies paren'ts file descriptor table along with memory
-  - so child starts with exactly same open files as parament
+- `fork()` copies parent's file descriptor table along with memory
+  - so child starts with exactly same open files as parent
   - `exec()` replaces calling processes memory but preserves its file table
 - I/O redirection by shell is thus accomplished similar to this example
   - `cat < input.txt`
 - **`open()`** system call opens a new file descriptor
   - second argument set of flags as bits
     - O_RDONLY for reading
-    - O_WRONGLY for writing
+    - O_WRONLY for writing
     - O_RDWR for both read and write
     - O_CREATE to create a file if it doesn't exist
     - O_TRUNC to overwrite existing file (truncate to 0 length)
@@ -312,10 +312,10 @@ Advantages over temporary files:
 \scriptsize
 ```c
 int p[2];
-char *argv[2];
+char *pargv[2];
 
-argv[0] = "wc";
-argv[1] = 0;
+pargv[0] = "wc";
+pargv[1] = 0;
 
 pipe(p);
 
@@ -324,7 +324,7 @@ if (fork() == 0) {
     dup(p[0]);
     close(p[0]);
     close(p[1]);
-    exec("wc", argv);
+    exec("wc", pargv);
 }
 else {
     close(p[0]);
@@ -339,8 +339,16 @@ else {
 
 - File descriptors are a powerful abstraction
   - They hide details of what they are connected to: a file, a device, a pipe
+- The basic file descriptor commands are
+  - `open(file, mode)`: open file as new file descriptor, lowest unused file descriptor used
+  - `read(fd, buf, size)`: read in up to size bytes from file descriptor into buffer
+  - `write(rd, buf, size)`: write size bytes to file descriptior
+  - `close(fd)`: close file dscriptor
+- Using fact that fd 0, 1, 2 correspond to standard input, output and error
+  can use close and open for simple I/O redirection in programs
 - Pipes are small kernel buffers exposed to processes as a pair of file descriptors
   for reading / writing from / to
+  - Again can use fact that close and dup reuse lowest unused file descriptor for redirection
 
 # 
 \title{Ch 01: File System}
@@ -418,9 +426,6 @@ mknod("/console", 1, 1);
     - location on disk (blocks)
 ::::
 :::: {.column width=50%}
-- **`fstat()`** system call retrieves information from the inode that a file
-  descriptor refers to.
-  - `struct stat` data structure in `stat.h` 
 - **`link()`** system call creates another file system name referring to the same
   inode as an existing file.
 - **`unlink()`** system call removes a name from the file system.
@@ -428,12 +433,44 @@ mknod("/console", 1, 1);
 ::::
 :::
   
+# fstat() System Call
+
+::: columns
+:::: {.column width=40%}
+- `fstat()` system call retrieves information from the inode that
+  a file descriptor refers to
+  - `struct stat` data structure in `stat.h`
+::::
+:::: {.column width=60%}
+```c
+struct stat sb;
+if (stat("input.txt", &sb) == -1) {
+  fprintf(2, "Error trying to stat() 
+      file, does it exist?\n");
+  exit(0);
+}
+
+printf("device   : %d\n", sb.dev);
+printf("inode no : %d\n", sb.ino);
+printf("type     : %d\n", sb.type);
+printf("nlink    : %d\n", sb.nlink);
+printf("size     : %lu\n", sb.size);
+```
+::::
+:::
 
 # Summary
 
 - File system in Unix like system contain
   - **data files**: arrays / streams of bytes
   - **directories**: organize file system structure into tree hierarchy
+  - Device files are special files that link to device driver code in kernel
+- File system calls 
+  - `mkdir(dir)`: create a new directory in file system tree
+  - `mknod(device, major, minor)`: create a special device node, major and minor node device driver
+  - `link()`: create another file system name referring to existing file
+  - `unlink()`: remove name from file system
+  - `fstat(fd, struct stat)`: file system information / status
   
 
 # References
