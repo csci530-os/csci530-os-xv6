@@ -122,5 +122,12 @@
         "Watchpoints",
         "Werror"
     ],
-    "cSpell.enabled": true
+    "cSpell.enabled": true,
+    "files.exclude": {
+        "**/kernel/*.d": true,
+        "**/kernel/*.o": true,
+        "**/user/_*": true,
+        "**/user/*.d": true,
+        "**/user/*.o": true,
+    }
 }

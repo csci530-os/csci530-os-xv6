@@ -11,7 +11,7 @@ urlcolor: blue
 citecolor: blue
 
 section-titles: false
-toc: false
+toc: trye
 toc_depth: 2
 output: 
 	beamer_presentation:
@@ -27,6 +27,11 @@ header-includes:
   - \usepackage[percent]{overpic}
 ---
 
+
+# 
+\title{Ch 03: Paging Hardware}
+\maketitle
+\section{Paging Hardware}
 
 # Page Tables
 
@@ -139,7 +144,27 @@ provides each process with its own private address space and memory
 ::::
 :::
 
-# Kernel Address Space
+# Summary
+
+- Page tables provide processes with their own private address space
+  - This is basic mechanism by which OS implements isolation and multiplexing of resources,
+    like cpu time sharing
+- The CPU architecture MUST support runtime translation from a virtual address to a
+  physical address at runtime, using a defined page table structure
+  - RISC-V uses satp register in supervisor and user mode as base of page table for translation
+  - The Sv39 standard defines a 3-level page table tree
+    - allows for 39 bit virtual addresses (38 used by xv6)
+    - Requires 4 memory accesses to translate each memory reference to a physical address
+- xv6 and RISC-V Sv39 use 12 bit page offsets, meaning page PGSIZE is $2^{12}$ = 4096 bytes
+- Each page directory is held on a single page and contains 512 page table entries
+  
+
+# 
+\title{Ch 03: Kernel Address Space}
+\maketitle
+\section{Kernel Address Space}
+
+# Kernel Address Space (1 of 2)
 
 ::: columns
 :::: {.column width=60%}
@@ -154,9 +179,51 @@ provides each process with its own private address space and memory
   address space
   - configures layout of its address space to give it access to all of physical memory
   - configured to allow access to various hardware resources at predictable virtual addresses
+    - **memory-mapped** control registers that sit below 0x80000000
+  - kernel maps all physical RAM at virtual addresses equal to the physical address
+    - **direct mapping**
   - configured in `kernel/memlayout.h`
 ::::
 :::
+
+# Kernel Address Space (2 of 2)
+
+::: columns
+:::: {.column width=60%}
+\begin{figure}
+\includegraphics[scale=0.16]{figures/ch03-fig-3-3-kernel-page-table}
+\label{fig:ch03-fig-3-3-kernel-page-table}
+\caption{On the left xv6's kernel virtual address space.  RWX refer to PTE read, write and execute permissions.  On the right, the RISC-V physical address space that xv6 expects to see. \parencite[pg.34]{cox-kaashoek-morris-2026}}
+\end{figure}
+::::
+:::: {.column width=40%}
+- Most of the xv6 code for manipulating address spaces and page tables resides in `kernel/vm.c`
+  - `pagetable_t` is really a pointer to a root page-table page
+  - functions that start with `kvm` manipulate the kernel page table
+  - functions that start with `uvm` manipulate a user page table
+::::
+:::
+
+# Summary
+
+- There is a page table that is created during boot that defines the kernel address space
+- All of physical memory (including kernel code and data) is direct mapped from
+  the kernel address space to a physical address
+- Hardware devices are memory-mapped to addresses below KERNBASE and are
+  accessible in kernel mode by device drivers
+- Not all kernel addresses are direct mapped
+  - The trampoline page is mapped to the top of the virtual address space, it actually
+    is mapped 2 times in this space
+  - Kernel stack pages for processes are also mapped to top of virtual address space, surrounded
+    by guard pages to help prevent kernel bugs
+- Functions starting with `kvm` in `kernel/vm.c` manipulate and create the kernel page table
+  - These function are used before page table mapping is actually enabled during boot
+
+
+# 
+\title{Ch 03: Process Address Space}
+\maketitle
+\section{Process Address Space}
 
 # Process Address Space (1 of 2)
 
@@ -207,7 +274,17 @@ Some properties of xv6 use of page tables here:
 
 # Summary
 
-- 
+- Each process has its own page table
+- The `exec()` system call (`kexec()` in `kernel/exec.c`)
+  - Creates a new page table
+  - Loads a binary file in elf format, initially the elf header which indicates number of segments in file
+  - Then loads each text (instruction) and data segment into the new process virtual address space
+    - Text (instruction) segments are loaded R-XU
+    - Data segments are loaded R-WU
+  - A stack is then created with a guard page, so that if it grows past end of stack a trap occurs
+    - The initial `argv` argument values passed into `exec()` are copied onto initial stack
+  - If successful, the pagetable, program counter and stack pointer are set in the trap frame, so that
+    on return to user mode for this process, will start executing the newly loaded code at the entry point
   
 
 # References

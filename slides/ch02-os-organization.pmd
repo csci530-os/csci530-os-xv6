@@ -270,7 +270,7 @@ in production.
 - xv6 uses 12 bit page sizes, so `PAGESIZE` = $2^{12} = 4096$
 - Top two pages of user space are dual mapped into kernel space and
   these two pages are used to transition into and out of kernel space
-- **trampoline page** (4069 bytes)
+- **trampoline page** (4096 bytes)
   - contains the code to transition in and out of the kernel
 - **trapframe page** (4096 bytes)
   - where kernel saves the process's user registers
@@ -311,7 +311,8 @@ in production.
 # Process State
 
 - The `struct proc` `p->state` indicates (see `enum procstate`):
-  - allocated `UNUSED` / `USED`
+  - free process table entry `UNUSED`
+  - allocated `USED`
   - ready to run `RUNNABLE`
   - currently running `RUNNING`
   - waiting for I/O `SLEEPING`
