@@ -11,7 +11,7 @@ urlcolor: blue
 citecolor: blue
 
 section-titles: false
-toc: trye
+toc: true
 toc_depth: 2
 output: 
 	beamer_presentation:

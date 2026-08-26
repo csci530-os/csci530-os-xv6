@@ -11,7 +11,7 @@ urlcolor: blue
 citecolor: blue
 
 section-titles: false
-toc: false
+toc: true
 toc_depth: 2
 output: 
 	beamer_presentation:
@@ -27,8 +27,13 @@ header-includes:
   - \usepackage[percent]{overpic}
 ---
 
+# 
+\title{Ch 04: Traps and System Calls}
+\maketitle
+\section{Traps and System Calls}
 
-# Introduction Traps and System Calls (1 of 3)
+
+# Traps and System Calls (1 of 3)
 
 There are 3 kinds of event which cause the CPU to set aside ordinary
 execution of instructions and force a transfer of control to special
@@ -56,7 +61,7 @@ kernel code that handles the event:
 xv6 trap handling proceeds in four? stages:
 
 1. hardware actions taken by the RISC-V cpu
-2. some assembly instructions that prepare the way for kernel c Code trap handlers
+2. some assembly instructions that prepare the way for kernel C code trap handlers
 3. a C function that decides what to do with the trap
 4. finally the system call or device-driver service routine
    - implicitly state is saved in 1,2, and restored at end of 4
@@ -75,7 +80,7 @@ that has occurred
 - **stvec**: kernel writes address of its trap handler code here, RISC-V CPU jumps to the address
   in `stvec` to handle a trap
 - **sepc**: when a trap occurs, RISC-V saves the program counter here
-  - `stret` (return from trap) copies `sepc` to `pc`, kernel can write `sepc` to control where `sret` goes
+  - `sret` (return from trap) copies `sepc` to `pc`, kernel can write `sepc` to control where `sret` goes
 - **scause**: RISC-V puts a number here that describes the reason for the trap
 - **sscratch**: kernel trap handler code uses `sscratch` to help avoid it overwriting user registers before
   saving them
@@ -105,6 +110,23 @@ are sometimes done on other hardware architectures:
 - Doesn't save any registers, other than the `pc`
 
 Kernel software must perform these tasks.
+
+# Summary
+
+- 3 kinds of events cause a **trap** into supervisor trap handler:
+  **system call** (`ecall`), **exception**, device **interrupt**
+- A trap forces hardware transfer of control into the kernel, supervisor mode trap handler
+- RISC-V uses registers like `stvec` and `sepc` to allow software to enabled and handle
+  hardware generated traps, and switch from user mode to kernel model safely
+- RISC-V is hardwired to save the pc, communicate the cause of the interrupt, and load the
+  trap vector specified by the OS into the `pc` to execute and return from traps
+  - Allows the kernel OS software to setup how to handle traps in supervisor mode
+
+
+# 
+\title{Ch 04: Traps from User Space}
+\maketitle
+\section{Traps from User Space}
 
 # Traps from User Space
 
@@ -160,7 +182,7 @@ write:
 # Calling System Calls (2 of 2)
 
 - `syscall()` retrieves the system call number from `a7` and uses to index into `syscalls`
-  - for example `SYS_write` indexs and calls the `sys_write()` function in teh kernel
+  - for example `SYS_write` indexes and calls the `sys_write()` function in teh kernel
 - When `sys_write()` returns, `syscall` records its return value in `p->trapframe->a0`
   - This will be what the original user-space call to `write()` will be returned
   - By convention 0 is success, and non zero is failure? (I disagree with book a bit here).
@@ -170,7 +192,7 @@ write:
 
 - System call arguments start out in user registers `a0` `a1` ... and are moved to the trap frame by
   the kernel trap code
-- kernel functions `argint()` `argaddr()` and `argfd()` canbe used to retrieve the n'th system call argument
+- kernel functions `argint()` `argaddr()` and `argfd()` can be used to retrieve the n'th system call argument
   from the trap frame as an integer, pointer, or a file descriptor
 - Sometimes a pointer is passed, will be a pointer to user-space address space
   - Has to be checked, could be buggy or malicious
@@ -180,6 +202,31 @@ write:
   - `fetchstr()` retrieve string file-name arguments
   - `copyinsstr()` copy in str copies up to `max` bytes to `dst` from virtual
     address `srvca` in the user page table `pagetable`
+
+# Summary
+
+- xv6 handles traps from user space by entering the `uservec` in the trampoline page
+  - This is mapped to same virtual space in all user page tables and the kernel page table
+  - basically saves the user process state from where it was interrupted
+- The `uservec` trap vector calls the `usertrap()` routine to handle the actual trap
+  -  This does some things like reenable interrupts and switch to the kernel stack and kernel page table
+  -  handles system call, exception or interrupt as needed
+  -  calls `prepare_return()` to setup for return, including switching back to the
+     process page table and stack, and ensuring that the `epc` register has address to return back `pc` to
+- When invoking an xv6 system call
+  - the `ecall` instruction performs a software trap to change from user mode to supervisor mode
+  - system call parameters are placed in `a0`, `a1`, `a2`, ... registers
+  - `a7` register is loaded with the index of the system call to perform
+  - The `usertrap()` function calls `syscall()` to execute a system call, which looks up
+    `a7` in the trapframe to determine which system call was invoked
+  - The return result from a system call is returned in `a0`, which is first placed in the saved
+    trap frames `a0` location so it is restored to actual register `a0` on return to user space
+
+
+# 
+\title{Ch 04: Traps from Kernel Space}
+\maketitle
+\section{Traps from Kernel Space}
 
 
 # Traps from Kernel Space
