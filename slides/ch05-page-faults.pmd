@@ -1,0 +1,125 @@
+---
+title: "Ch 05: Page Faults"
+subtitle: "xv6 a simple Unix-like teaching Operating System"
+author: Derek Harter
+date:  Summer 2026
+theme: Madrid
+colorlinks: true
+linkcolor: gray
+filecolor: gray
+urlcolor: blue
+citecolor: blue
+
+section-titles: false
+toc: true
+toc_depth: 2
+output: 
+	beamer_presentation:
+    keep_tex: true
+classoption: aspectratio=169
+header-includes:
+  - \logo{\includegraphics[scale=0.25]{figures/etamu-logo}}
+  - \title [xv6 Operating System]{xv6 Operating System}
+  - \institute[East Texas A\&M]{Department of Computer Science \\East Texas A\&M University}
+  - \usepackage[backend=biber, style=apa]{biblatex}
+  - \addbibresource{slides.bib}
+  - \hypersetup{colorlinks=true, urlcolor=blue, citecolor=blue, linkcolor=green, filecolor=green}
+  - \usepackage[percent]{overpic}
+---
+
+# 
+\title{Ch 05: Lazy Allocation}
+\maketitle
+\section{Lazy Allocation}
+
+
+# Page Fault Exception
+
+- RISC-V CPU raises a page fault exception when
+  - virtual address (VA) is used that has no mapping in the page table
+  - VA has a mapping whose `PTE_V` flag is clear
+  - VA permission (PTE_R, PTE_W, PTE_X, PTE_U) forbid the operation
+    - e.g. a store on a page not marked PTE_W
+    - e.g. any operation in user mode on a page that is not marked PTE_U
+
+The combination of page tables and page faults is a powerful tool for an OS
+              
+- Give kernel level of indirection between virtual and physical addresses
+- Kernel can control structure and content of address spaces
+- Allow kernel to intercept loads and stores
+
+# Page Fault Exception
+
+Kernel can use these capabilities to increase efficiency
+
+- copy-on-write fork allows kernel to transparently share memory between parent
+  and child
+- memory-mapped files, where kernel uses paging to cause a file's contents to
+  appear in an application's address space
+- lazy memory allocation, only allocate and load pages a program actually reads
+  and writes
+  - xv6 implements lazy allocation, but not the other two
+
+# Lazy Allocation
+
+xv6's **lazy allocation** has 2 parts
+
+1. When an application calls `sbrk` with the flag `SBRK_LAZY` the kernel simply
+   notes the increase in size of the process address space, but it does not
+   allocate physical memory and does not create PTEs yet for the new range of
+   virtual addresses.
+2. On a page fault on one of these new addresses, kernel allocates a page of
+   physical memory and maps it into the page table.
+
+Advantages:
+
+- Convenient for applications, they can request worst case usage but not pay the
+  cost if don't need all that memory
+- Without lazy allocation, all work to grow a lot of memory happens up front,
+  can be notably bad performance hit
+  - On the other hand, page faults incur extra overhead that, if the memory is
+    needed, will be much more work than just doing the work up front.
+              
+
+# Summary
+
+- RISC-V raises a page fault exception when VA is not yet mapped in page table,
+  or when PTE_V flag is clear, or when permissions don't allow the operation
+  asked for
+- Page tables and page table exceptions are tools OS uses to implement many
+  features
+  - virtual memory
+  - lazy memory allocation
+  - copy on write process forks
+- xv6 implements lazy memory allocation
+  - when application requests dynamic memory (using `sbrk`) can request
+    `SBRK_LAZY` and kernel simply notes increase in virtual address space size
+  - on reference to unmapped VA, xv6 allocates a page of physical memory and
+    maps it into the page table
+              
+# 
+\title{Ch 05: More OS Uses of Page Tables and PT Exceptions}
+\maketitle
+\section{More OS Uses of Page Tables and PT Exceptions}
+
+
+# Copy-On-Write (COW) Fork
+
+
+
+# Summary
+
+- x
+
+# References
+\tiny \printbibliography
+
+
+::: columns
+:::: {.column width=50%}
+::::
+:::: {.column width=50%}
+::::
+:::
+
+

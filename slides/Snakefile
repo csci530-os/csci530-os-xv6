@@ -12,6 +12,7 @@ rule all:
 	         "ch02-os-organization.pdf", \
 	         "ch03-page-tables.pdf", \
 	         "ch04-traps-system-calls.pdf", \
+	         "ch05-page-faults.pdf", \
 	         "kr05-pointers-arrays.pdf", \
 	         "kr06-structures.pdf", \
 	         "gdb-debugging.pdf", \
