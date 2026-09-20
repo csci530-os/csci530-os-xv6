@@ -2,7 +2,7 @@
 title: "Ch 05: Page Faults"
 subtitle: "xv6 a simple Unix-like teaching Operating System"
 author: Derek Harter
-date:  Summer 2026
+date:  Fall 2026
 theme: Madrid
 colorlinks: true
 linkcolor: gray
@@ -43,7 +43,7 @@ header-includes:
     - e.g. any operation in user mode on a page that is not marked PTE_U
 
 The combination of page tables and page faults is a powerful tool for an OS
-              
+                
 - Give kernel level of indirection between virtual and physical addresses
 - Kernel can control structure and content of address spaces
 - Allow kernel to intercept loads and stores
@@ -79,7 +79,7 @@ Advantages:
   can be notably bad performance hit
   - On the other hand, page faults incur extra overhead that, if the memory is
     needed, will be much more work than just doing the work up front.
-              
+                
 
 # Summary
 
@@ -96,7 +96,7 @@ Advantages:
     `SBRK_LAZY` and kernel simply notes increase in virtual address space size
   - on reference to unmapped VA, xv6 allocates a page of physical memory and
     maps it into the page table
-              
+                
 # 
 \title{Ch 05: More OS Uses of Page Tables and PT Exceptions}
 \maketitle
@@ -107,18 +107,23 @@ Advantages:
 
 - `fork()` system call causes creation of new process, but initial content of
   memory is same as parents (instructions and data)
-  - xv6 creates new page table, and allocates and copies parent memory for child address space
-- **Copy-on-write** (COW) fork causes parent and child to safely share physical memory by appropriate
-  use of page-table permissions and page faults
+  - xv6 creates new page table, and allocates and copies parent memory for child
+    address space
+- **Copy-on-write** (COW) fork causes parent and child to safely share physical
+  memory by appropriate use of page-table permissions and page faults
   - All pages are mapped to read only (`PTE_W` flag is cleared)
-  - New page table created for child, but just a copy of parent's page table, translating to shared pages
-    - Need a new data structure that keeps track of number of entities sharing a page of memory
-    - Need to also still be aware of which pages should not be writable before being shared and `PTE_W` cleared
-  - When either tries to write a shared page, the RISC-V raises a page-fault exception
+  - New page table created for child, but just a copy of parent's page table,
+    translating to shared pages
+    - Need a new data structure that keeps track of number of entities sharing a
+      page of memory
+    - Need to also still be aware of which pages should not be writable before
+      being shared and `PTE_W` cleared
+  - When either tries to write a shared page, the RISC-V raises a page-fault
+    exception
     - OS then allocates a new page of physical memory
     - copies the contents of shared page to new page
     - performs the write
-    - also keeps track of number of processes sharing a page, need to decrease 
+    - also keeps track of number of processes sharing a page, need to decrease
 
 
 # Demand Paging
@@ -132,10 +137,11 @@ Advantages:
   - OS starts the program running, each time a program uses a page for the first
     time a page fault occurs
   - Can be implemented transparently to the application
-- **Paging to disk**: store only a fraction of user pages in RAM, rest in **paging area**
-  - If a reference to a paged out page is made, a page fault exception occurs and the OS
-    pages in the page, potentially selecting an existing page in memory to be **evicted** and
-    paged back out to the paging area
+- **Paging to disk**: store only a fraction of user pages in RAM, rest in
+  **paging area**
+  - If a reference to a paged out page is made, a page fault exception occurs
+    and the OS pages in the page, potentially selecting an existing page in
+    memory to be **evicted** and paged back out to the paging area
 
 
 # Memory-Mapped Files, Dynamic Stacks
@@ -143,27 +149,35 @@ Advantages:
 Other examples of features that can be implemented using page tables and paging
 exceptions:
 
-- Automatically extending stacks. 
-  - For example xv6 has a guard page to detect stack overflow. 
-  - Instead of panicking could handle the exception and allocate an additional page if stack overflows
+- Automatically extending stacks.
+  - For example xv6 has a guard page to detect stack overflow.
+  - Instead of panicking could handle the exception and allocate an additional
+    page if stack overflows
 - **Memory-mapped files**: files that a program maps into its address space
   - `mmap` system call
-  - Can thus access data using load and store instructions rather than file system calls
+  - Can thus access data using load and store instructions rather than file
+    system calls
 
 
 # Summary
 
-- Copy-on-write fork have child page table initially sharing all references to parent pages
-  - All pages are marked read only, so that page fault generated when a write is attempted
-  - Only when a page is written will a copy be made so there are separate pages for parent and child
+- Copy-on-write fork have child page table initially sharing all references to
+  parent pages
+  - All pages are marked read only, so that page fault generated when a write is
+    attempted
+  - Only when a page is written will a copy be made so there are separate pages
+    for parent and child
   - Since a lot of pages are never written, and also since often an application
     `exec` a new set of code and data to run, this can increase performance
     greatly for forking and creating new processes
-- Demand paging is implemented by having the `exec` call not actually load all data and text into memory
+- Demand paging is implemented by having the `exec` call not actually load all
+  data and text into memory
   - Instead a page table is created with all pages set to invalid
-  - First time each page is referenced, a page table exception occurs and the OS loads the page lazily
+  - First time each page is referenced, a page table exception occurs and the OS
+    loads the page lazily
   - Can also be used in conjunction with paging to disk
-- Automatically extend system and user stacks by guard page trick, but allocating new page if stack overflows
+- Automatically extend system and user stacks by guard page trick, but
+  allocating new page if stack overflows
 - Memory-mapped files to allow process to map file to address space
 
 # References
