@@ -28,22 +28,26 @@ header-includes:
 ---
 
 # 
-\title{Ch 05: Lazy Allocation}
+\title{Ch 05: Page Faults and Lazy Allocation}
 \maketitle
-\section{Lazy Allocation}
+\section{Page Faults and Lazy Allocation}
 
 
 # Page Fault Exception
 
 - RISC-V CPU raises a page fault exception when
-  - virtual address (VA) is used that has no mapping in the page table
-  - VA has a mapping whose `PTE_V` flag is clear
-  - VA permission (PTE_R, PTE_W, PTE_X, PTE_U) forbid the operation
-    - e.g. a store on a page not marked PTE_W
-    - e.g. any operation in user mode on a page that is not marked PTE_U
+  1. virtual address (VA) is used that has no mapping in the page table
+  2. VA has a mapping whose `PTE_V` flag is clear
+  3. VA permission (PTE_R, PTE_W, PTE_X, PTE_U) forbid the operation
+    - load page fault (caused by load instructions not marked PTE_R e.g. a read
+      from a page not marked readable)
+    - store page fault (a store on a page not marked PTE_W)
+    - instruction page fault (caused by fetches of instructions to be executed)
+- `scause` register indicates type of page fault
+- `stval` register contains address that caused fault
 
 The combination of page tables and page faults is a powerful tool for an OS
-                
+                            
 - Give kernel level of indirection between virtual and physical addresses
 - Kernel can control structure and content of address spaces
 - Allow kernel to intercept loads and stores
@@ -79,7 +83,7 @@ Advantages:
   can be notably bad performance hit
   - On the other hand, page faults incur extra overhead that, if the memory is
     needed, will be much more work than just doing the work up front.
-                
+                            
 
 # Summary
 
@@ -96,34 +100,13 @@ Advantages:
     `SBRK_LAZY` and kernel simply notes increase in virtual address space size
   - on reference to unmapped VA, xv6 allocates a page of physical memory and
     maps it into the page table
-                
+                            
 # 
 \title{Ch 05: More OS Uses of Page Tables and PT Exceptions}
 \maketitle
 \section{More OS Uses of Page Tables and PT Exceptions}
 
 
-# Copy-On-Write (COW) Fork
-
-- `fork()` system call causes creation of new process, but initial content of
-  memory is same as parents (instructions and data)
-  - xv6 creates new page table, and allocates and copies parent memory for child
-    address space
-- **Copy-on-write** (COW) fork causes parent and child to safely share physical
-  memory by appropriate use of page-table permissions and page faults
-  - All pages are mapped to read only (`PTE_W` flag is cleared)
-  - New page table created for child, but just a copy of parent's page table,
-    translating to shared pages
-    - Need a new data structure that keeps track of number of entities sharing a
-      page of memory
-    - Need to also still be aware of which pages should not be writable before
-      being shared and `PTE_W` cleared
-  - When either tries to write a shared page, the RISC-V raises a page-fault
-    exception
-    - OS then allocates a new page of physical memory
-    - copies the contents of shared page to new page
-    - performs the write
-    - also keeps track of number of processes sharing a page, need to decrease
 
 
 # Demand Paging
@@ -157,6 +140,28 @@ exceptions:
   - `mmap` system call
   - Can thus access data using load and store instructions rather than file
     system calls
+
+# Copy-On-Write (COW) Fork
+
+- `fork()` system call causes creation of new process, but initial content of
+  memory is same as parents (instructions and data)
+  - xv6 creates new page table, and allocates and copies parent memory for child
+    address space
+- **Copy-on-write** (COW) fork causes parent and child to safely share physical
+  memory by appropriate use of page-table permissions and page faults
+  - All pages are mapped to read only (`PTE_W` flag is cleared)
+  - New page table created for child, but just a copy of parent's page table,
+    translating to shared pages
+    - Need a new data structure that keeps track of number of entities sharing a
+      page of memory
+    - Need to also still be aware of which pages should not be writable before
+      being shared and `PTE_W` cleared
+  - When either tries to write a shared page, the RISC-V raises a page-fault
+    exception
+    - OS then allocates a new page of physical memory
+    - copies the contents of shared page to new page
+    - performs the write
+    - also keeps track of number of processes sharing a page, need to decrease
 
 
 # Summary
