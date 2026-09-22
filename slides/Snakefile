@@ -13,6 +13,7 @@ rule all:
 	         "ch03-page-tables.pdf", \
 	         "ch04-traps-system-calls.pdf", \
 	         "ch05-page-faults.pdf", \
+	         "ch06-interrupts-device-drivers.pdf", \
 	         "kr05-pointers-arrays.pdf", \
 	         "kr06-structures.pdf", \
 	         "gdb-debugging.pdf", \
