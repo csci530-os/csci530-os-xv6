@@ -17,6 +17,7 @@ rule all:
 	         "kr05-pointers-arrays.pdf", \
 	         "kr06-structures.pdf", \
 	         "gdb-debugging.pdf", \
+	         "test01-comp-exam.pdf", \
 	        ]
 
 rule pmd_to_md:
