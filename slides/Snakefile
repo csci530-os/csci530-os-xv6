@@ -14,6 +14,7 @@ rule all:
 	         "ch04-traps-system-calls.pdf", \
 	         "ch05-page-faults.pdf", \
 	         "ch06-interrupts-device-drivers.pdf", \
+	         "ch07-locking-concurrency-I.pdf", \
 	         "kr05-pointers-arrays.pdf", \
 	         "kr06-structures.pdf", \
 	         "gdb-debugging.pdf", \

@@ -55,6 +55,7 @@
         "hartid",
         "hypersetup",
         "includegraphics",
+        "interruptable",
         "kaashoek",
         "kalloc",
         "KERNBASE",

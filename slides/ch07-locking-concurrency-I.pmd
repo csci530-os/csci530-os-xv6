@@ -1,0 +1,135 @@
+---
+title: "Ch 07: Locking (Concurrency I)"
+subtitle: "xv6 a simple Unix-like teaching Operating System"
+author: Derek Harter
+date:  Fall 2026
+theme: Madrid
+colorlinks: true
+linkcolor: gray
+filecolor: gray
+urlcolor: blue
+citecolor: blue
+
+section-titles: false
+toc: true
+toc_depth: 2
+output: 
+	beamer_presentation:
+    keep_tex: true
+classoption: aspectratio=169
+header-includes:
+  - \logo{\includegraphics[scale=0.25]{figures/etamu-logo}}
+  - \title [xv6 Operating System]{xv6 Operating System}
+  - \institute[East Texas A\&M]{Department of Computer Science \\East Texas A\&M University}
+  - \usepackage[backend=biber, style=apa]{biblatex}
+  - \addbibresource{slides.bib}
+  - \hypersetup{colorlinks=true, urlcolor=blue, citecolor=blue, linkcolor=green, filecolor=green}
+  - \usepackage[percent]{overpic}
+---
+
+# 
+\title{Ch 07: Races and Locks}
+\maketitle
+\section{Races and Locks}
+
+
+# Concurrency (1 of 2)
+
+::: columns
+:::: {.column width=70%}
+- One source of interleaving is multiprocessor hardware
+  - Modern OS, and also xv6, allow kernel execution on all CPUs in multicore
+    hardware
+  - Multiple CPU architecture share physical RAM, OS exploits sharing in
+    maintaining kernel data structures that all CPUs read and write
+- Even without multiple processors, kernel interleaves execution of code (use
+  and kernel)
+  - System calls interleave user process to access data structures
+  - Interrupts, device handlers can modify same kernel structures as
+    interruptable code
+
+::::
+:::: {.column width=30%}
+## Concurrency
+
+**Concurrency** refers to the situations in which multiple instruction streams
+are interleaved, due to multiprocessor parallelism, thread switching, or
+interrupts.
+::::
+:::
+
+
+# Concurrency (2 of 2)
+
+Concurrency or interleaving raises the possibility of one thread/CPU reading a
+data structure while another thread/CPU is mid-way through updating it, or even
+multiple thread/CPUs updating the same data simultaneously.
+
+Without careful design, such parallel (concurrent) access is likely to yield
+incorrect results or a broken data structure.
+
+# Kernel Design and Concurrency
+
+- Kernels are full of concurrently-accessed data
+  - For example, in xv6 two CPUs (or interleaved threads) could simultaneously
+    call `kalloc()` thereby concurrently popping from the head of the free list.
+  - **Pros:** like to allow for lots of concurrency as this yields increased
+    performance through parallelism, thus increasing OS responsiveness
+  - **Cons:** kernel designers must convince themselves of correctness of kernel
+    code despite such concurrency (hard)
+
+Strategies aimed at correctness under concurrency, and abstractions that support
+them, are called **concurrency control** techniques.
+
+# Locks
+
+::: columns
+:::: {.column width=33%}
+## Lock
+**Lock**: A lock provides mutual exclusion, ensuring that only one CPU/thread at
+a time can hold the lock.
+::::
+:::: {.column width=66%}
+- If associate a lock with each shared data item and code always holds
+  associated lock when accessing the item, ensures only one CPU/thread at a time
+- Although locks are an easy-to-understand concurrency control mechanism, the
+  downside of locks is that they can limit performance, because they
+  **serialize** concurrent operations.
+::::
+:::
+      
+
+# Races
+
+
+
+# Summary
+
+-
+
+# 
+\title{Ch 07: Title}
+\maketitle
+\section{Title}
+
+# Title
+
+
+# Summary
+
+-
+
+
+
+# References
+\tiny \printbibliography
+
+
+::: columns
+:::: {.column width=50%}
+::::
+:::: {.column width=50%}
+::::
+:::
+
+
